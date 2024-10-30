@@ -13,6 +13,9 @@ class EditListing(StatesGroup):
     edit_listing_id = State()
     edit_listing_price = State()
     edit_listing_description = State()
+    edit_listing_name = State()
+    edit_listing_condition = State()
+    edit_listing_photos = State()
 
 
 class DeleteListing(StatesGroup):
