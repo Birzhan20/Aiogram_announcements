@@ -1,10 +1,11 @@
 from aiogram import types, F
 from aiogram.filters import Command
-from aiogram.types import ContentType
+from aiogram.types import ContentType, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot import dp
+from database import save_changes
 from models import Listing, engine
 from states import EditListing
 
@@ -36,7 +37,14 @@ async def process_edit_listing_name(message: types.Message, state: FSMContext):
     else:
         await state.update_data(new_name=message.text.strip())
 
-    await message.answer("Введите новое состояние (новая/б/у, или отправьте /skip для пропуска):")
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="Новое"), KeyboardButton(text="Б/у")]
+        ],
+        resize_keyboard=True
+    )
+
+    await message.answer("Укажите состояние:", reply_markup=keyboard)
     await state.set_state(EditListing.edit_listing_condition)
 
 
@@ -79,11 +87,16 @@ async def process_edit_listing_description(message: types.Message, state: FSMCon
 
 @dp.message(EditListing.edit_listing_photos, F.content_type == ContentType.PHOTO)
 async def process_edit_listing_photos(message: types.Message, state: FSMContext):
-    photos = await state.get_data('photos', [])
-    photos.append(message.photo[-1].file_id)
-    await state.update_data(photos=photos)
+    data = await state.get_data()
+    photos = data.get('photos', [])
 
-    await message.answer("Если хотите добавить ещё фото, загрузите его, или отправьте /done для завершения.")
+    if message.photo:
+        photos.append(message.photo[-1].file_id)
+        await state.update_data(photos=photos)
+        await message.answer(
+            "Фото добавлено! Если хотите добавить ещё фото, загрузите его, или отправьте /done для завершения.")
+    else:
+        await message.answer("Не удалось получить фото, отправьте /done для завершения.")
 
 
 @dp.message(Command('skip'), EditListing.edit_listing_photos)
@@ -101,28 +114,3 @@ async def done_editing(message: types.Message, state: FSMContext):
     await save_changes(state)
     await message.answer("Объявление успешно обновлено!")
     await state.clear()
-
-
-async def save_changes(state: FSMContext):
-    data = await state.get_data()
-    listing_id = data['listing_id']
-
-    async with AsyncSession(engine) as session:
-        listing = await session.get(Listing, listing_id)
-
-        # Обновляем только те поля, которые были изменены
-        if data['new_name'] is not None:
-            listing.model = data['new_name']
-        if data['new_condition'] is not None:
-            listing.condition = data['new_condition']
-        if data['new_price'] is not None:
-            listing.price = data['new_price']
-        if data['new_description'] is not None:
-            listing.description = data['new_description']
-        if data['photos']:
-            listing.photo1 = data['photos'][0] if len(data['photos']) > 0 else listing.photo1
-            listing.photo2 = data['photos'][1] if len(data['photos']) > 1 else listing.photo2
-            listing.photo3 = data['photos'][2] if len(data['photos']) > 2 else listing.photo3
-
-        await session.commit()
-

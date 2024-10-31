@@ -1,7 +1,7 @@
 from aiogram import types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
-from aiogram.types import ContentType
+from aiogram.types import ContentType, ReplyKeyboardMarkup, KeyboardButton
 
 from bot import dp
 from states import CreateListing
@@ -18,7 +18,14 @@ async def start_create_listing(message: types.Message, state: FSMContext):
 @dp.message(CreateListing.model)
 async def process_model(message: types.Message, state: FSMContext):
     await state.update_data(model=message.text)
-    await message.answer("Укажите состояние (новая/б/у):")
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="Новое"), KeyboardButton(text="Б/у")]
+        ],
+        resize_keyboard=True
+    )
+
+    await message.answer("Укажите состояние:", reply_markup=keyboard)
     await state.set_state(CreateListing.condition)
 
 

@@ -21,10 +21,16 @@ async def process_toggle_listing_id(message: types.Message, state: FSMContext):
         listing = await session.get(Listing, listing_id)
 
     if listing:
-        listing.is_active = not listing.is_active
-        await session.commit()
-        status = "активировано" if listing.is_active else "приостановлено"
+        if listing.is_active is True:
+            listing.is_active = False
+            status = "приостановлено"
+            await session.commit()
+        else:
+            listing.is_active = True
+            status = "активировано"
+            await session.commit()
         await message.answer(f"Объявление успешно {status}.")
         await state.clear()
     else:
         await message.answer("Объявление не найдено.")
+        await state.clear()

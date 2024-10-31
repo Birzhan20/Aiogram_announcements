@@ -27,6 +27,7 @@ class ToggleListing(StatesGroup):
 
 
 class SearchListing(StatesGroup):
+    model = State()
     price_min = State()
     price_max = State()
     sorting = State()

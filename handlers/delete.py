@@ -15,17 +15,20 @@ async def delete_listing(message: types.Message, state: FSMContext):
 
 
 @dp.message(DeleteListing.delete_listing_id)
-async def process_delete_listing_id(message: types.Message):
+async def process_delete_listing_id(message: types.Message, state: FSMContext):
     try:
         listing_id = int(message.text)
         async with AsyncSession(engine) as session:
             listing = await session.get(Listing, listing_id)
 
-        if listing:
-            async with session.begin():
+            if listing:
                 await session.delete(listing)
-            await message.answer("Объявление успешно удалено!")
-        else:
-            await message.answer("Объявление не найдено.")
+                await session.commit()
+                await message.answer("Объявление успешно удалено!")
+            else:
+                await message.answer("Объявление не найдено.")
+
+        await state.clear()
     except ValueError:
         await message.answer("Пожалуйста, введите корректный ID объявления.")
+        await state.clear()

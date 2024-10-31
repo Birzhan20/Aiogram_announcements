@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -27,20 +27,24 @@ async def list_my_listings(message: types.Message):
             response = (
                 f"ID: {listing.id}\n"
                 f"Модель: {listing.model}\n"
-                f"Цена: {listing.price}₽\n"
+                f"Цена: {listing.price}\n"
                 f"Состояние: {listing.condition}\n"
                 f"Описание: {listing.description}\n"
                 f"Статус: {'Активно' if listing.is_active else 'Приостановлено'}\n"
             )
 
+            media_group = []
             if listing.photo1:
-                await message.answer_photo(listing.photo1)
+                media_group.append(InputMediaPhoto(media=listing.photo1))
             if listing.photo2:
-                await message.answer_photo(listing.photo2)
+                media_group.append(InputMediaPhoto(media=listing.photo2))
             if listing.photo3:
-                await message.answer_photo(listing.photo3)
+                media_group.append(InputMediaPhoto(media=listing.photo3))
 
-            await message.answer(response, reply_markup=keyboard)
+            if media_group:
+                await message.answer_media_group(media=media_group)
+                await message.answer(response, reply_markup=keyboard)
+            else:
+                await message.answer(response, reply_markup=keyboard)
     else:
         await message.answer("У вас нет объявлений.")
-
