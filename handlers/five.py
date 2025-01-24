@@ -1,35 +1,43 @@
 from aiogram import types
+from aiogram.enums import ParseMode
+
 from bot import dp
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-@dp.callback_query(lambda callback: callback.data == "5")
-async def process_section_1(callback: types.CallbackQuery):
+@dp.callback_query(lambda callback: callback.data == "question_4")
+async def process_section_4(callback: types.CallbackQuery):
     questions_builder = InlineKeyboardBuilder()
     questions_builder.add(
         types.InlineKeyboardButton(
-            text="Как создать интернет-магазин на Mytrade.kz?",
-            callback_data="5.1"))
+            text="Как найти нужный товар или услугу?",
+            callback_data="16"))
     questions_builder.add(
         types.InlineKeyboardButton(
-            text="Какие преимущества у интернет-магазина?",
-            callback_data="5.2"))
+            text="Как связаться с продавцом?",
+            callback_data="17"))
     questions_builder.add(
         types.InlineKeyboardButton(
-            text="Как добавить товары в интернет-магазин?",
-            callback_data="5.3"))
+            text="Можно ли вернуть товар?",
+            callback_data="18"))
     questions_builder.add(
         types.InlineKeyboardButton(
-            text="Как продвигать свой магазин?",
-            callback_data="5.4"))
+            text="Как оплатить товар на платформе?",
+            callback_data="19"))
     questions_builder.add(
         types.InlineKeyboardButton(
-            text="Как отслеживать статистику продаж?",
-            callback_data="5.5"))
+            text="Как получить гарантию на товар?",
+            callback_data="20"))
+    questions_builder.add(
+        types.InlineKeyboardButton(
+            text="Вернуться в главное меню",
+            callback_data="main_menu"))
     questions_builder.adjust(1)
 
-    await callback.message.answer(
-        "Выберите вопрос из раздела 'О работе интернет-магазинов':",
-        reply_markup=questions_builder.as_markup()
+    await callback.answer("Вы выбрали раздел 'Покупки и продаж'", show_alert=True)
+    await callback.message.edit_text(
+        "Выберите вопрос из раздела <b><i>Покупки и продаж</i></b>:",
+        reply_markup=questions_builder.as_markup(),
+        parse_mode=ParseMode.HTML
     )
