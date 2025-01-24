@@ -15,19 +15,6 @@ async def get_listings(session: AsyncSession, limit: int = 10, offset: int = 0):
     return result.scalars().all()
 
 
-# Функция для добавления данных в базу
-async def insert_data(session: AsyncSession, data: list):
-    try:
-        for item in data:
-            listing = Listing(id=item['id'], answer=item['answer'])
-            session.add(listing)
-        await session.commit()
-        print("Данные были успешно добавлены в базу.")
-    except Exception as e:
-        print(f"Ошибка при добавлении данных: {e}")
-        await session.rollback()  # Откатываем изменения в случае ошибки
-
-
 # Функция для проверки, существует ли таблица
 async def is_db_populated(session: AsyncSession):
     result = await session.execute(select(Listing).limit(1))  # Запрос с select
@@ -62,8 +49,8 @@ async def process_question(callback: types.CallbackQuery):
             if answer:
                 await callback.answer("Ответ найден.", show_alert=True)
                 await callback.message.edit_text(
-                    f"Ответ на ваш вопрос:\n\n{answer}",
-                    parse_mode=ParseMode.HTML
+                    f"*Ответ на ваш вопрос:*\n\n{answer}\nНа главную /menu",
+                    parse_mode="Markdown",
                 )
             else:
                 await callback.answer("Извините, ответ не найден.", show_alert=True)

@@ -6,7 +6,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot import dp, bot
 
 
-@dp.message(Command("help"))
+@dp.message(Command("menu"))
 async def cmd_random(message: types.Message):
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(text="Общие", callback_data="question_1"))
@@ -48,9 +48,9 @@ async def cmd_random(message: types.Message):
             callback_data="question_10"))
     builder.adjust(1)
     await message.answer(
-        "<b><i>Выберите раздел по вашему вопросу:</i></b>",
+        "*Выберите раздел по вашему вопросу:*",
         reply_markup=builder.as_markup(),
-        parse_mode=ParseMode.HTML
+        parse_mode="Markdown"
     )
 
 

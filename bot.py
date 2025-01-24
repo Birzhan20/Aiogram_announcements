@@ -10,4 +10,4 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
-from handlers import help
+from handlers import help, start

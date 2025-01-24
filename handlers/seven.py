@@ -37,7 +37,7 @@ async def process_section_1(callback: types.CallbackQuery):
 
     await callback.answer("Вы выбрали раздел 'Продвижение и реклама'", show_alert=True)
     await callback.message.edit_text(
-        "Выберите вопрос из раздела <b><i>Продвижение и реклама</i></b>:",
+        "*Выберите вопрос из раздела* _Продвижение и реклама_:",
         reply_markup=questions_builder.as_markup(),
-        parse_mode=ParseMode.HTML
+        parse_mode="Markdown"
     )
